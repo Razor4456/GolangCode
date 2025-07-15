@@ -30,6 +30,6 @@ func main() {
 
 	defer db.Close()
 
-	log.Panic("Database Successfully Connect")
+	log.Printf("Database Successfully Connect")
 
 }
