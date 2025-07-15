@@ -4,7 +4,7 @@ import "github.com/Razor4456/FoundationBackEnd/internal/store"
 
 type ApplicationApi struct {
 	Config   Config
-	Function store.Function
+	Function store.FunctionStore
 }
 
 type Config struct {

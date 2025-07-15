@@ -1,4 +1,10 @@
 package store
 
-type Function struct {
+type FunctionStore struct {
+	AddStuff interface {
+	}
 }
+
+// func FunctionStorage(db *sql.DB) FunctionStore {
+// 	// return FunctionStorage{}
+// }
