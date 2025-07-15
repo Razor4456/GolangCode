@@ -6,17 +6,17 @@ import (
 	"time"
 )
 
-func Database(addr string, maxOpenConns, maxIdleConns int, maxIdleTime string) (*sql.DB, error) {
-	db, err := sql.Open("postgres", addr)
+func Database(Addr string, MaxOpenConns, MaxIdleConns int, MaxIdleTime string) (*sql.DB, error) {
+	db, err := sql.Open("postgres", Addr)
 
 	if err != nil {
 		return nil, err
 	}
 
-	db.SetMaxOpenConns(maxOpenConns)
-	db.SetMaxIdleConns(maxIdleConns)
+	db.SetMaxOpenConns(MaxOpenConns)
+	db.SetMaxIdleConns(MaxIdleConns)
 
-	duration, err := time.ParseDuration(maxIdleTime)
+	duration, err := time.ParseDuration(MaxIdleTime)
 
 	if err != nil {
 		return nil, err
