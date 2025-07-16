@@ -1,7 +1,7 @@
 services:
   db:
     image: postgres:16.3
-    container_name: postgres-db
+    container_name: Foundation
     environment:
       POSTGRES_DB: newdatabase
       POSTGRES_USER: postgres
@@ -10,6 +10,6 @@ services:
       - db-data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
-
+    
 volumes:
   db-data:
