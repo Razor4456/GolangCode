@@ -2,6 +2,8 @@ package store
 
 import (
 	"database/sql"
+	"fmt"
+	"log"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
@@ -19,8 +21,25 @@ type StuffApi struct {
 	db *sql.DB
 }
 
-func (f *StuffApi) CreateStuff(ctx *gin.Context, post *PostStuff) error {
+func (f *StuffApi) CreateStuff(ctx *gin.Context, poststuff *PostStuff) error {
+	query := `INSERT INTO stuff(nama_barang, jumlah_barang, harga)
+	VALUES($1,$2,$3) RETURNING id, created_at`
+
+	err := f.db.QueryRowContext(
+		ctx,
+		query,
+		poststuff.Namabarang,
+		poststuff.Jumlahbarang,
+		poststuff.Harga,
+	).Scan(
+		&poststuff.Id,
+		&poststuff.CreatedAt,
+	)
+
+	if err != nil {
+		log.Printf("Failed To Insert Data Error: %s, data: %v", err, poststuff)
+		return fmt.Errorf("failed to make stuff error:%s", err)
+	}
 
 	return nil
-
 }
