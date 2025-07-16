@@ -1,6 +1,9 @@
 package main
 
-import "github.com/Razor4456/FoundationBackEnd/internal/store"
+import (
+	"github.com/Razor4456/FoundationBackEnd/internal/store"
+	"github.com/gin-gonic/gin"
+)
 
 type ApplicationApi struct {
 	Config   Config
@@ -18,4 +21,13 @@ type Dbconfig struct {
 	MaxOpenConns int
 	MaxIdleConss int
 	MaxIdleTime  string
+}
+
+func (app *ApplicationApi) ServerRoute(route *gin.Engine) {
+
+	Found := route.Group("/FoundationV1")
+	{
+		Found.POST("/AddStuff", app.CreateStuff)
+	}
+
 }

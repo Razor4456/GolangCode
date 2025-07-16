@@ -28,4 +28,14 @@ func (app *ApplicationApi) CreateStuff(ctx *gin.Context) {
 		Harga:        PayStuff.Harga,
 	}
 
+	if err := app.Function.Stuff.CreateStuff(ctx, PayloadsStuff); err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": "Cannot post data stuff"})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusCreated, gin.H{
+		"Message": "Successfuly create stuff",
+		"data":    PayloadsStuff})
+
 }
