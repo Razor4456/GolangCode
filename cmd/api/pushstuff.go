@@ -56,6 +56,18 @@ func (app *ApplicationApi) DeleteStuff(ctx *gin.Context) {
 		return
 	}
 
+	if len(PayStuffDelete.Id) == 0 {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Message": "Must Input Number"})
+		return
+	}
+
+	for _, id := range PayStuffDelete.Id {
+		if id <= 0 {
+			ctx.JSON(http.StatusBadRequest, gin.H{"Message": "Id must be greater than zero "})
+			return
+		}
+	}
+
 	Deleted, err := app.Function.Stuff.DeleteStuff(ctx, PayStuffDelete.Id)
 
 	if err != nil {
