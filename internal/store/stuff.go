@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"github.com/gin-gonic/gin"
+	"github.com/lib/pq"
 	_ "github.com/lib/pq"
 )
 
@@ -40,6 +41,22 @@ func (f *StuffApi) CreateStuff(ctx *gin.Context, poststuff *PostStuff) error {
 		log.Printf("Failed To Insert Data Error: %s, data: %v", err, poststuff)
 		return fmt.Errorf("failed to make stuff error:%s", err)
 	}
+
+	return nil
+}
+
+func (f *StuffApi) DeleteStuff(ctx *gin.Context, StuffId []int64) error {
+	query := `DELETE FROM stuff WHERE id = any($1)`
+
+	result, err := f.db.ExecContext(ctx, query, pq.Array(StuffId))
+
+	if err != nil {
+		return fmt.Errorf("Failed To Delete: %w", err)
+	}
+
+	rowAsffeteds, err := result.RowsAffected()
+
+	log.Printf("%d Success Deleted Data", rowAsffeteds)
 
 	return nil
 }
