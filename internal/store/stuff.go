@@ -18,6 +18,10 @@ type PostStuff struct {
 	CreatedAt    string `json:"created_at"`
 }
 
+type DeletedStuff struct {
+	Namabarang string `json:"nama_barang"`
+}
+
 type StuffApi struct {
 	db *sql.DB
 }
@@ -45,18 +49,31 @@ func (f *StuffApi) CreateStuff(ctx *gin.Context, poststuff *PostStuff) error {
 	return nil
 }
 
-func (f *StuffApi) DeleteStuff(ctx *gin.Context, StuffId []int64) error {
-	query := `DELETE FROM stuff WHERE id = any($1)`
+func (f *StuffApi) DeleteStuff(ctx *gin.Context, StuffId []int64) ([]DeletedStuff, error) {
+	query := `DELETE FROM stuff WHERE id = any($1)
+	RETURNING nama_barang`
 
-	result, err := f.db.ExecContext(ctx, query, pq.Array(StuffId))
+	result, err := f.db.QueryContext(ctx, query, pq.Array(StuffId))
 
 	if err != nil {
-		return fmt.Errorf("Failed To Delete: %w", err)
+		return nil, fmt.Errorf("failed to delete: %w", err)
 	}
 
-	rowAsffeteds, err := result.RowsAffected()
+	defer result.Close()
 
-	log.Printf("%d Success Deleted Data", rowAsffeteds)
+	var DeletedBarang []DeletedStuff
 
-	return nil
+	for result.Next() {
+		var PosStuff DeletedStuff
+		if err := result.Scan(&PosStuff.Namabarang); err != nil {
+			return nil, fmt.Errorf("Failed To Return Name: %w", err)
+		}
+		DeletedBarang = append(DeletedBarang, PosStuff)
+	}
+
+	if err != nil {
+		return nil, fmt.Errorf("rows error :%w", err)
+	}
+
+	return DeletedBarang, nil
 }

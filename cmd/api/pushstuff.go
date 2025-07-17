@@ -56,7 +56,9 @@ func (app *ApplicationApi) DeleteStuff(ctx *gin.Context) {
 		return
 	}
 
-	if err := app.Function.Stuff.DeleteStuff(ctx, PayStuffDelete.Id); err != nil {
+	Deleted, err := app.Function.Stuff.DeleteStuff(ctx, PayStuffDelete.Id)
+
+	if err != nil {
 		if errors.Is(err, store.ErrNotFound) {
 			ctx.JSON(http.StatusNotFound, gin.H{"error": fmt.Sprintf("stuff with id %d not found", PayStuffDelete.Id)})
 			return
@@ -69,7 +71,8 @@ func (app *ApplicationApi) DeleteStuff(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"message": fmt.Sprintf("stuff with id: %d deleted successfuly", PayStuffDelete.Id),
+		"message": "Successfuly deleted item",
+		"Data":    Deleted,
 	})
 
 }

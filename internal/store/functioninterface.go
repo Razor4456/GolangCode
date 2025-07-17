@@ -15,7 +15,7 @@ var (
 type FunctionStore struct {
 	Stuff interface {
 		CreateStuff(*gin.Context, *PostStuff) error
-		DeleteStuff(*gin.Context, []int64) error
+		DeleteStuff(*gin.Context, []int64) ([]DeletedStuff, error)
 	}
 }
 
