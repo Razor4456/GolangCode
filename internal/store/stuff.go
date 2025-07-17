@@ -26,6 +26,13 @@ type StuffApi struct {
 	db *sql.DB
 }
 
+func (f *StuffApi) GetDataStuff(ctx *gin.Context) (*PostStuff, error) {
+	query := `SELET * FROM stuff`
+
+	f.db.
+
+}
+
 func (f *StuffApi) CreateStuff(ctx *gin.Context, poststuff *PostStuff) error {
 	query := `INSERT INTO stuff(nama_barang, jumlah_barang, harga)
 	VALUES($1,$2,$3) RETURNING id, created_at`
