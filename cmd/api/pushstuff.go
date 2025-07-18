@@ -9,6 +9,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func (app *ApplicationApi) GetDataStuff(ctx *gin.Context) {
+
+	datastuffs, err := app.Function.Stuff.GetDataStuff(ctx)
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "There was an error when get data"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"Data:": datastuffs})
+
+}
+
 type PayloadStuff struct {
 	Namabarang   string `json:"nama_barang"`
 	Jumlahbarang int64  `json:"jumlah_barang"`

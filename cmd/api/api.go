@@ -27,6 +27,7 @@ func (app *ApplicationApi) ServerRoute(route *gin.Engine) {
 
 	Found := route.Group("/FoundationV1")
 	{
+		Found.GET("/GetStuff", app.GetDataStuff)
 		Found.POST("/AddStuff", app.CreateStuff)
 		Found.DELETE("/DeleteStuff", app.DeleteStuff)
 	}

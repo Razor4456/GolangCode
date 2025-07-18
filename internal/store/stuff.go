@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/lib/pq"
@@ -27,9 +28,45 @@ type StuffApi struct {
 }
 
 func (f *StuffApi) GetDataStuff(ctx *gin.Context) (*PostStuff, error) {
-	query := `SELET * FROM stuff`
+	query := `SELECT * FROM stuff`
 
-	f.db.
+	stuffrows, err := f.db.Query(query)
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Message": "There was an error on GetDataStuff"})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return nil, nil
+	}
+
+	defer stuffrows.Close()
+
+	var DataStuff *PostStuff
+
+	for stuffrows.Next() {
+		var datastuffrows PostStuff
+		err := stuffrows.Scan(
+			&datastuffrows.Id,
+			&datastuffrows.Namabarang,
+			&datastuffrows.Jumlahbarang,
+			&datastuffrows.Harga,
+			&datastuffrows.CreatedAt,
+		)
+
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"Error": "Ther was an error when get datastuff"})
+			ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+			return nil, nil
+
+		}
+	}
+
+	if err = stuffrows.Err(); err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Message": "There was an error on GetDataStuff"})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Message": err.Error()})
+		return nil, nil
+	}
+
+	return DataStuff, nil
 
 }
 
@@ -63,6 +100,7 @@ func (f *StuffApi) DeleteStuff(ctx *gin.Context, StuffId []int64) ([]DeletedStuf
 	result, err := f.db.QueryContext(ctx, query, pq.Array(StuffId))
 
 	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error:": "There was an error on DeleteStuff"})
 		return nil, fmt.Errorf("failed to delete: %w", err)
 	}
 
@@ -73,7 +111,7 @@ func (f *StuffApi) DeleteStuff(ctx *gin.Context, StuffId []int64) ([]DeletedStuf
 	for result.Next() {
 		var PosStuff DeletedStuff
 		if err := result.Scan(&PosStuff.Namabarang); err != nil {
-			return nil, fmt.Errorf("Failed To Return Name: %w", err)
+			return nil, fmt.Errorf("failed to return name: %w", err)
 		}
 		DeletedBarang = append(DeletedBarang, PosStuff)
 	}
