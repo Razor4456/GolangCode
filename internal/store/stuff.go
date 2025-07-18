@@ -27,7 +27,7 @@ type StuffApi struct {
 	db *sql.DB
 }
 
-func (f *StuffApi) GetDataStuff(ctx *gin.Context) (*PostStuff, error) {
+func (f *StuffApi) GetDataStuff(ctx *gin.Context) ([]PostStuff, error) {
 	query := `SELECT * FROM stuff`
 
 	stuffrows, err := f.db.Query(query)
@@ -40,7 +40,7 @@ func (f *StuffApi) GetDataStuff(ctx *gin.Context) (*PostStuff, error) {
 
 	defer stuffrows.Close()
 
-	var DataStuff *PostStuff
+	var DataStuff []PostStuff
 
 	for stuffrows.Next() {
 		var datastuffrows PostStuff
@@ -58,6 +58,7 @@ func (f *StuffApi) GetDataStuff(ctx *gin.Context) (*PostStuff, error) {
 			return nil, nil
 
 		}
+		DataStuff = append(DataStuff, datastuffrows)
 	}
 
 	if err = stuffrows.Err(); err != nil {
