@@ -19,12 +19,13 @@ type FunctionStore struct {
 		GetDataStuff(*gin.Context) ([]PostStuff, error)
 	}
 	Users interface {
-		CreateUsers(*gin.Context) error
+		CreateUsers(*gin.Context, *PostUsers) error
 	}
 }
 
 func FunctionStorage(db *sql.DB) FunctionStore {
 	return FunctionStore{
 		Stuff: &StuffApi{db},
+		Users: &UsersAPI{db},
 	}
 }

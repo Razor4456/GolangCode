@@ -1,0 +1,11 @@
+CREATE EXTENSION IF NOT EXISTS citext;
+
+CREATE TABLE IF NOT EXISTS users(
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    email citext UNIQUE NOT NULL,
+    username varchar(255) UNIQUE NOT NULL,
+    name varchar(255) NOT NULL,
+    password varchar(255) NOT NULL,
+    role varchar(255) NOT NULL,
+    created_at timestamp(0) with time zone NOT NULL DEFAULT NOW()
+);
