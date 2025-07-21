@@ -37,6 +37,21 @@ func (app *ApplicationApi) CreateStuff(ctx *gin.Context) {
 		return
 	}
 
+	if PayStuff.Namabarang == "" {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Nama barang cannot empty"})
+		return
+	}
+
+	if PayStuff.Jumlahbarang <= 0 {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Quantity must be greater then 0 "})
+		return
+	}
+
+	if PayStuff.Harga <= 0 {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Price must be greater then 0"})
+		return
+	}
+
 	PayloadsStuff := &store.PostStuff{
 		Namabarang:   PayStuff.Namabarang,
 		Jumlahbarang: PayStuff.Jumlahbarang,

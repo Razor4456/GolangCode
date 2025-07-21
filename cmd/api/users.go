@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/Razor4456/FoundationBackEnd/internal/store"
+	"github.com/Razor4456/FoundationBackEnd/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -26,11 +27,13 @@ func (app *ApplicationApi) CreateUsers(ctx *gin.Context) {
 		return
 	}
 
+	Passhash, err := utils.HashPassword(Paypostusers.Password)
+
 	InputUsers := &store.PostUsers{
 		Email:    Paypostusers.Email,
 		Username: Paypostusers.Username,
 		Name:     Paypostusers.Name,
-		Password: Paypostusers.Password,
+		Password: Passhash,
 		Role:     Paypostusers.Role,
 	}
 
