@@ -7,5 +7,6 @@ CREATE TABLE IF NOT EXISTS users(
     name varchar(255) NOT NULL,
     password varchar(255) NOT NULL,
     role varchar(255) NOT NULL,
+    veriflogin varchar(50) NOT NULL,
     created_at timestamp(0) with time zone NOT NULL DEFAULT NOW()
 );

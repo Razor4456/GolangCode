@@ -8,12 +8,53 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type LoginPayload struct {
+	Id         int64  `json:"id"`
+	Username   string `json:"username"`
+	Password   string `json:"password"`
+	VerifLogin string `json:"veriflogin"`
+}
+
+func (app ApplicationApi) Login(ctx *gin.Context) {
+	var LoginPayload LoginPayload
+
+	err := ctx.ShouldBindJSON(&LoginPayload)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "There was an error with payload Login, LoginPayload"})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
+	}
+
+	payloadlogin := &store.UsersLogin{
+		Username: LoginPayload.Username,
+		Password: LoginPayload.Password,
+	}
+
+	payloadveriflogin := &store.Verifylogin{
+		VerifLogin: "True",
+		Id:         LoginPayload.Id,
+	}
+
+	err = app.Function.Users.Login(ctx, payloadlogin, payloadveriflogin)
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "There was an error when login"})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"Message": "Login Success"})
+
+}
+
 type PayloadUsers struct {
-	Email    string `json:"email"`
-	Username string `json:"username"`
-	Name     string `json:"name"`
-	Password string `json:"password"`
-	Role     string `json:"role"`
+	Email      string `json:"email"`
+	Username   string `json:"username"`
+	Name       string `json:"name"`
+	Password   string `json:"password"`
+	Role       string `json:"role"`
+	VerifLogin string `json:"veriflogin"`
 }
 
 func (app *ApplicationApi) CreateUsers(ctx *gin.Context) {
@@ -27,14 +68,20 @@ func (app *ApplicationApi) CreateUsers(ctx *gin.Context) {
 		return
 	}
 
-	Passhash, err := utils.HashPassword(Paypostusers.Password)
+	passhash, err := utils.HashPassword(Paypostusers.Password)
+
+	if err != nil {
+		ctx.JSON(http.StatusPreconditionFailed, gin.H{"Message": "There was an error when parshing hash password"})
+		return
+	}
 
 	InputUsers := &store.PostUsers{
-		Email:    Paypostusers.Email,
-		Username: Paypostusers.Username,
-		Name:     Paypostusers.Name,
-		Password: Passhash,
-		Role:     Paypostusers.Role,
+		Email:      Paypostusers.Email,
+		Username:   Paypostusers.Username,
+		Name:       Paypostusers.Name,
+		Password:   passhash,
+		Role:       Paypostusers.Role,
+		VerifLogin: "False",
 	}
 
 	err = app.Function.Users.CreateUsers(ctx, InputUsers)

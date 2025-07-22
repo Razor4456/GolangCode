@@ -37,4 +37,9 @@ func (app *ApplicationApi) ServerRoute(route *gin.Engine) {
 		Users.POST("/CreateUsers", app.CreateUsers)
 	}
 
+	Login := route.Group("/Login")
+	{
+		Login.POST("/LoginUser", app.Login)
+	}
+
 }
