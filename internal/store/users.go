@@ -24,12 +24,16 @@ type UsersLogin struct {
 	Password string `json:"password"`
 }
 
+type Tokens struct {
+	Name  string `json:"name"`
+	Token string `json:"token"`
+}
 type UsersAPI struct {
 	db *sql.DB
 }
 
 func (f *UsersAPI) Login(ctx *gin.Context, Logins *UsersLogin) error {
-	query := `SELECT id, username, password FROM users WHERE username = $1`
+	query := `SELECT id, username, name, password FROM users WHERE username = $1`
 	users := PostUsers{}
 	err := f.db.QueryRow(
 		query,
@@ -37,6 +41,7 @@ func (f *UsersAPI) Login(ctx *gin.Context, Logins *UsersLogin) error {
 	).Scan(
 		&users.Id,
 		&users.Username,
+		&users.Name,
 		&users.Password,
 	)
 
@@ -49,10 +54,22 @@ func (f *UsersAPI) Login(ctx *gin.Context, Logins *UsersLogin) error {
 		return err
 
 	}
+
 	err = utils.HashValidation(Logins.Password, users.Password)
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": "Password Wrong "})
+		return err
+	}
+
+	if users.Id <= 0 {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": "User id not found"})
+	}
+
+	token, err := utils.GenerateToken(users.Id, users.Username)
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Token Cannot be generate"})
 		return err
 	}
 
@@ -64,8 +81,21 @@ func (f *UsersAPI) Login(ctx *gin.Context, Logins *UsersLogin) error {
 		users.Id,
 	)
 
+	tokens := Tokens{
+		Name:  users.Name,
+		Token: token,
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"Account": tokens,
+	})
+
 	return nil
 }
+
+// func (f *UsersAPI) Logout(ctx *gin.Context) {
+// 	f.getUserIDFromContext
+// }
 
 func (f *UsersAPI) CreateUsers(ctx *gin.Context, PostUsers *PostUsers) error {
 	query := `INSERT INTO users(email, username, name, password, role, veriflogin) VALUES ($1,$2,$3,$4,$5,$6) RETURNING id, created_at`
