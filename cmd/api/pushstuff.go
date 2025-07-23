@@ -18,7 +18,7 @@ func (app *ApplicationApi) GetDataStuff(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"Data:": datastuffs})
+	ctx.JSON(http.StatusOK, gin.H{"Stuff": datastuffs})
 
 }
 

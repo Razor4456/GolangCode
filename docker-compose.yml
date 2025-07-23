@@ -74,7 +74,7 @@ services:
     ports:
       - 8761:8761
     healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:8761/management/health']
+      test: ['CMD', 'curl', '-f', air ,'http://localhost:8761/management/health']
       interval: 5s
       timeout: 5s
       retries: 10
