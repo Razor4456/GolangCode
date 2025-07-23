@@ -9,10 +9,8 @@ import (
 )
 
 type LoginPayload struct {
-	Id         int64  `json:"id"`
-	Username   string `json:"username"`
-	Password   string `json:"password"`
-	VerifLogin string `json:"veriflogin"`
+	Username string `json:"username"`
+	Password string `json:"password"`
 }
 
 func (app ApplicationApi) Login(ctx *gin.Context) {
@@ -30,12 +28,7 @@ func (app ApplicationApi) Login(ctx *gin.Context) {
 		Password: LoginPayload.Password,
 	}
 
-	payloadveriflogin := &store.Verifylogin{
-		VerifLogin: "True",
-		Id:         LoginPayload.Id,
-	}
-
-	err = app.Function.Users.Login(ctx, payloadlogin, payloadveriflogin)
+	err = app.Function.Users.Login(ctx, payloadlogin)
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "There was an error when login"})

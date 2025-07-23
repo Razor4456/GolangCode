@@ -25,16 +25,11 @@ type UsersLogin struct {
 	Password string `json:"password"`
 }
 
-type Verifylogin struct {
-	Id         int64  `json:"id"`
-	VerifLogin string `json:"veriflogin"`
-}
-
 type UsersAPI struct {
 	db *sql.DB
 }
 
-func (f *UsersAPI) Login(ctx *gin.Context, Logins *UsersLogin, Veriflogin *Verifylogin) error {
+func (f *UsersAPI) Login(ctx *gin.Context, Logins *UsersLogin) error {
 	query := `SELECT id, username, password FROM users WHERE username = $1`
 	users := PostUsers{}
 	err := f.db.QueryRow(
@@ -66,8 +61,8 @@ func (f *UsersAPI) Login(ctx *gin.Context, Logins *UsersLogin, Veriflogin *Verif
 
 	_, nil := f.db.ExecContext(ctx,
 		LoginQuery,
-		Veriflogin.VerifLogin,
-		Veriflogin.Id,
+		"True",
+		users.Id,
 	)
 
 	return nil

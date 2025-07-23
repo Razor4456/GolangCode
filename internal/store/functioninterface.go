@@ -21,7 +21,7 @@ type FunctionStore struct {
 	Users interface {
 		// Login(*gin.Context) error
 		CreateUsers(*gin.Context, *PostUsers) error
-		Login(*gin.Context, *UsersLogin, *Verifylogin) error
+		Login(*gin.Context, *UsersLogin) error
 	}
 }
 
