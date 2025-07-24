@@ -13,6 +13,12 @@ import (
 
 // var secretKey = "thisissecretkey"
 
+type CustomerToken struct {
+	UserId   int64  `json:"user_id"`
+	Username string `json:"username"`
+	jwt.RegisteredClaims
+}
+
 func GenerateToken(userId int64, Username string) (string, error) {
 
 	if err := godotenv.Load(); err != nil {
@@ -23,30 +29,36 @@ func GenerateToken(userId int64, Username string) (string, error) {
 	if secretKey == "" {
 		return "", errors.New("JWT SECRET not found")
 	}
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"userId":   userId,
-		"username": Username,
-		"exp":      time.Now().Add(20 * time.Minute).Unix(),
-	})
+
+	claim := &CustomerToken{
+		UserId:   userId,
+		Username: Username,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(15 * time.Minute)),
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claim)
 
 	return token.SignedString([]byte(secretKey))
 }
 
-func VerifToken(tokenString string, secretKey string) (*jwt.Token, error) {
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+func VerifToken(tokenString string) (*CustomerToken, error) {
+
+	token, err := jwt.ParseWithClaims(tokenString, &CustomerToken{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method:%v", token.Header["alg"])
+			return nil, fmt.Errorf("unexpected signing method")
 		}
-		return []byte(secretKey), nil
+		return []byte(os.Getenv("JWT_SECRET")), nil
 	})
 
 	if err != nil {
 		return nil, err
 	}
 
-	if !token.Valid {
-		return nil, errors.New("invalid token")
+	if claims, ok := token.Claims.(*CustomerToken); ok && token.Valid {
+		return claims, nil
 	}
 
-	return token, nil
+	return nil, errors.New("invalid token claims")
 }
