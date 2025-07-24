@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/Razor4456/FoundationBackEnd/internal/store"
+	"github.com/Razor4456/FoundationBackEnd/middlewares"
 	"github.com/gin-gonic/gin"
 )
 
@@ -26,6 +27,7 @@ type Dbconfig struct {
 func (app *ApplicationApi) ServerRoute(route *gin.Engine) {
 
 	Found := route.Group("/FoundationV1")
+	Found.Use(middlewares.Authenticate)
 	{
 		Found.GET("/GetStuff", app.GetDataStuff)
 		Found.POST("/AddStuff", app.CreateStuff)

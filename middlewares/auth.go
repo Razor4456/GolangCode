@@ -34,4 +34,6 @@ func Authenticate(ctx *gin.Context) {
 
 	ctx.Set("User_id", claims.UserId)
 	ctx.Set("username", claims.Username)
+
+	ctx.Next()
 }
