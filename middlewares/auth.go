@@ -28,7 +28,8 @@ func Authenticate(ctx *gin.Context) {
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 			"error":   "invalid Token Details",
-			"details": err.Error()})
+			"details": err.Error()},
+		)
 		return
 	}
 

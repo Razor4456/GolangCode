@@ -13,7 +13,7 @@ type LoginPayload struct {
 	Password string `json:"password"`
 }
 
-func (app ApplicationApi) Login(ctx *gin.Context) {
+func (app *ApplicationApi) Login(ctx *gin.Context) {
 	var LoginPayload LoginPayload
 
 	err := ctx.ShouldBindJSON(&LoginPayload)
