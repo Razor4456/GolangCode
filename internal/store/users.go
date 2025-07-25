@@ -91,9 +91,46 @@ func (f *UsersAPI) Login(ctx *gin.Context, Logins *UsersLogin) (*Tokens, error) 
 	return &tokens, nil
 }
 
-// func (f *UsersAPI) Logout(ctx *gin.Context) {
-// 	f.getUserIDFromContext
-// }
+type StoreLogout struct {
+	Username string `json:"username"`
+}
+type UsersLogout struct {
+	Id       int64  `json:"user_id"`
+	Username string `json:"username"`
+}
+
+func (f *UsersAPI) Logout(ctx *gin.Context, StoreLogout *StoreLogout) error {
+	query := `SELECT id, username FROM users WHERE username = $1`
+	UserLogout := UsersLogout{}
+	err := f.db.QueryRow(
+		query,
+		StoreLogout.Username,
+	).Scan(
+		&UserLogout.Id,
+		&UserLogout.Username,
+	)
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "There was an error with Queryrow LogOut"})
+		return err
+	}
+
+	queryLogout := `UPDATE users SET veriflogin = $1 WHERE id = $2`
+
+	_, err = f.db.ExecContext(
+		ctx,
+		queryLogout,
+		"FALSE",
+		UserLogout.Id,
+	)
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "There was an error with Query LogOut"})
+		return err
+	}
+
+	return nil
+}
 
 func (f *UsersAPI) CreateUsers(ctx *gin.Context, PostUsers *PostUsers) error {
 	query := `INSERT INTO users(email, username, name, password, role, veriflogin) VALUES ($1,$2,$3,$4,$5,$6) RETURNING id, created_at`

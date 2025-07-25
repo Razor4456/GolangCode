@@ -45,6 +45,36 @@ func (app *ApplicationApi) Login(ctx *gin.Context) {
 
 }
 
+type PayloadLogout struct {
+	Username string `json:"username"`
+}
+
+func (app *ApplicationApi) LogOut(ctx *gin.Context) {
+	var PayloadLogout PayloadLogout
+
+	err := ctx.ShouldBindJSON(&PayloadLogout)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": "There was an error in Log out Function"})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
+	}
+
+	Paylogout := &store.StoreLogout{
+		Username: PayloadLogout.Username,
+	}
+
+	err = app.Function.Users.Logout(ctx, Paylogout)
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Logout function error"})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"message": "Log Out successfuly"})
+
+}
+
 type PayloadUsers struct {
 	Email      string `json:"email"`
 	Username   string `json:"username"`

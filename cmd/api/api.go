@@ -43,5 +43,9 @@ func (app *ApplicationApi) ServerRoute(route *gin.Engine) {
 	{
 		Login.POST("/LoginUser", app.Login)
 	}
+	Logout := route.Group("/Logout")
+	{
+		Logout.POST("/LogoutUser", app.LogOut)
+	}
 
 }

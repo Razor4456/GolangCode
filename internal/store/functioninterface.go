@@ -22,6 +22,7 @@ type FunctionStore struct {
 		// Login(*gin.Context) error
 		CreateUsers(*gin.Context, *PostUsers) error
 		Login(*gin.Context, *UsersLogin) (*Tokens, error)
+		Logout(*gin.Context, *StoreLogout) error
 	}
 }
 
