@@ -120,7 +120,7 @@ func (f *UsersAPI) Logout(ctx *gin.Context, StoreLogout *StoreLogout) error {
 	_, err = f.db.ExecContext(
 		ctx,
 		queryLogout,
-		"FALSE",
+		"False",
 		UserLogout.Id,
 	)
 
