@@ -24,11 +24,16 @@ type FunctionStore struct {
 		Login(*gin.Context, *UsersLogin) (*Tokens, error)
 		Logout(*gin.Context, *StoreLogout) error
 	}
+
+	Role interface {
+		Role(*gin.Context) ([]Role, error)
+	}
 }
 
 func FunctionStorage(db *sql.DB) FunctionStore {
 	return FunctionStore{
 		Stuff: &StuffApi{db},
 		Users: &UsersAPI{db},
+		Role:  &RoleAPI{db},
 	}
 }
