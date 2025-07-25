@@ -34,6 +34,11 @@ func (app *ApplicationApi) ServerRoute(route *gin.Engine) {
 		Found.DELETE("/DeleteStuff", app.DeleteStuff)
 	}
 
+	Roles := route.Group("/")
+	{
+		Roles.GET("/GetRole", app.Role)
+	}
+
 	Users := route.Group("/Create")
 	{
 		Users.POST("/CreateUsers", app.CreateUsers)
