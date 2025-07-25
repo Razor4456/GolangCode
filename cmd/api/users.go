@@ -28,7 +28,7 @@ func (app *ApplicationApi) Login(ctx *gin.Context) {
 		Password: LoginPayload.Password,
 	}
 
-	err = app.Function.Users.Login(ctx, payloadlogin)
+	tokenz, err := app.Function.Users.Login(ctx, payloadlogin)
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "There was an error when login"})
@@ -37,7 +37,11 @@ func (app *ApplicationApi) Login(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"Message": "Login Success"})
+		"Message":  "Login Success",
+		"User_id":  tokenz.Id,
+		"Username": tokenz.Name,
+		"Token":    tokenz.Token,
+	})
 
 }
 

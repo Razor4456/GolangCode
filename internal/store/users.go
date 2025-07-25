@@ -25,6 +25,7 @@ type UsersLogin struct {
 }
 
 type Tokens struct {
+	Id    int64  `json:"user_id"`
 	Name  string `json:"name"`
 	Token string `json:"token"`
 }
@@ -32,7 +33,7 @@ type UsersAPI struct {
 	db *sql.DB
 }
 
-func (f *UsersAPI) Login(ctx *gin.Context, Logins *UsersLogin) error {
+func (f *UsersAPI) Login(ctx *gin.Context, Logins *UsersLogin) (*Tokens, error) {
 	query := `SELECT id, username, name, password FROM users WHERE username = $1`
 	users := PostUsers{}
 	err := f.db.QueryRow(
@@ -51,7 +52,7 @@ func (f *UsersAPI) Login(ctx *gin.Context, Logins *UsersLogin) error {
 		} else {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"Error": "Database error"})
 		}
-		return err
+		return nil, err
 
 	}
 
@@ -59,7 +60,7 @@ func (f *UsersAPI) Login(ctx *gin.Context, Logins *UsersLogin) error {
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": "Password Wrong "})
-		return err
+		return nil, err
 	}
 
 	if users.Id <= 0 {
@@ -70,7 +71,7 @@ func (f *UsersAPI) Login(ctx *gin.Context, Logins *UsersLogin) error {
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Token Cannot be generate"})
-		return err
+		return nil, err
 	}
 
 	LoginQuery := `UPDATE users SET veriflogin = $1 WHERE id = $2`
@@ -82,15 +83,12 @@ func (f *UsersAPI) Login(ctx *gin.Context, Logins *UsersLogin) error {
 	)
 
 	tokens := Tokens{
+		Id:    users.Id,
 		Name:  users.Name,
 		Token: token,
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"Account": tokens,
-	})
-
-	return nil
+	return &tokens, nil
 }
 
 // func (f *UsersAPI) Logout(ctx *gin.Context) {
