@@ -1,0 +1,4 @@
+CREATE TABLE IF NOT EXISTS stuff(
+    token TEXT PRIMARY KEY,
+    expires_at TIMESTAMPTZ
+);
