@@ -28,7 +28,6 @@ type UsersLogin struct {
 	Password string `json:"password"`
 }
 
-// test
 type Tokens struct {
 	Id    int64  `json:"user_id"`
 	Name  string `json:"name"`
