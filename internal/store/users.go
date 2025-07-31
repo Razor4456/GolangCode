@@ -3,13 +3,9 @@ package store
 import (
 	"database/sql"
 	"net/http"
-	"os"
-	"strings"
-	"time"
 
 	"github.com/Razor4456/FoundationBackEnd/utils"
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt/v5"
 )
 
 type PostUsers struct {
@@ -103,75 +99,116 @@ type UsersLogout struct {
 	Username string `json:"username"`
 }
 
-func (f *UsersAPI) Logout(ctx *gin.Context, StoreLogout *StoreLogout) error {
-	tokenString := strings.TrimPrefix(ctx.GetHeader("Authorization"), "Bearer")
+// type RevokeToken struct {
+// 	Token      string `json:"token"`
+// 	User_id    int64  `json:"user_id"`
+// 	Expires_at string `json:"expires_at"`
+// }
 
-	token, _ := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
-		return []byte(os.Getenv("JWT_SECRET")), nil
-	})
-
-	claim := token.Claims.(jwt.MapClaims)
-	exp := time.Unix(int64(claim["exp"].(float64)), 0)
-
-}
-
-// func (f *UsersAPI) Logout(ctx *gin.Context, StoreLogout *StoreLogout) error {
-
+// func (f *UsersAPI) Logout(ctx *gin.Context) error {
 // 	tokenString := strings.TrimPrefix(ctx.GetHeader("Authorization"), "Bearer")
 
-// 	token, _ := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
+// 	token, err := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
 // 		return []byte(os.Getenv("JWT_SECRET")), nil
 // 	})
 
-// 	claim := token.Claims.(jwt.MapClaims)
-// 	exp := time.Unix(int64(claim["exp"].(float64)), 0)
+// 	if err != nil {
+// 		return ctx.AbortWithError(http.StatusUnauthorized, fmt.Errorf("invalid token"))
+// 	}
 
-// 	query := `INSERT INTO revoked_tokens (token, expires_at) VALUES ($1, $2)`
+// 	claims := token.Claims.(jwt.MapClaims)
 
-// 	_, err := f.db.ExecContext(
+// 	expUnix, ok := claims["exp"].(float64)
+// 	if !ok {
+// 		return ctx.AbortWithError(http.StatusBadRequest, fmt.Errorf("invalid exp claim"))
+// 	}
+
+// 	exp := time.Unix(int64(expUnix), 0)
+
+// 	uidFloat, ok := claims["user_id"].(float64)
+
+// 	if !ok {
+// 		return ctx.AbortWithError(http.StatusBadRequest, fmt.Errorf("invalid token"))
+// 	}
+
+// 	userID := int(uidFloat)
+
+// 	query := `INSERT INTO revok_token (token, user_id, expires_at) VALUES ($1, $2, $3)`
+// 	_, err = f.db.ExecContext(
 // 		ctx,
 // 		query,
 // 		tokenString,
+// 		userID,
 // 		exp,
 // 	)
 
 // 	if err != nil {
-// 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed To Revoke Token"})
+// 		return ctx.AbortWithError(http.StatusInternalServerError, err)
 // 	}
+
+// 	ctx.JSON(http.StatusOK, gin.H{"Message": "Token Revoked SuccessFully"})
 
 // 	return nil
 
-// 	// query := `SELECT id, username FROM users WHERE username = $1`
-// 	// UserLogout := UsersLogout{}
-// 	// err := f.db.QueryRow(
-// 	// 	query,
-// 	// 	StoreLogout.Username,
-// 	// ).Scan(
-// 	// 	&UserLogout.Id,
-// 	// 	&UserLogout.Username,
-// 	// )
-
-// 	// if err != nil {
-// 	// 	ctx.JSON(http.StatusInternalServerError, gin.H{"error": "There was an error with Queryrow LogOut"})
-// 	// 	return err
-// 	// }
-
-// 	// queryLogout := `UPDATE users SET veriflogin = $1 WHERE id = $2`
-
-// 	// _, err = f.db.ExecContext(
-// 	// 	ctx,
-// 	// 	queryLogout,
-// 	// 	"False",
-// 	// 	UserLogout.Id,
-// 	// )
-
-// 	// if err != nil {
-// 	// 	ctx.JSON(http.StatusInternalServerError, gin.H{"error": "There was an error with Query LogOut"})
-// 	// 	return err
-// 	// }
-
-// 	// return nil
 // }
+
+func (f *UsersAPI) Logout(ctx *gin.Context, StoreLogout *StoreLogout) error {
+
+	// tokenString := strings.TrimPrefix(ctx.GetHeader("Authorization"), "Bearer")
+
+	// token, _ := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
+	// 	return []byte(os.Getenv("JWT_SECRET")), nil
+	// })
+
+	// claim := token.Claims.(jwt.MapClaims)
+	// exp := time.Unix(int64(claim["exp"].(float64)), 0)
+
+	// query := `INSERT INTO revoked_tokens (token, expires_at) VALUES ($1, $2)`
+
+	// _, err := f.db.ExecContext(
+	// 	ctx,
+	// 	query,
+	// 	tokenString,
+	// 	exp,
+	// )
+
+	// if err != nil {
+	// 	ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed To Revoke Token"})
+	// }
+
+	// return nil
+
+	query := `SELECT id, username FROM users WHERE username = $1`
+	UserLogout := UsersLogout{}
+	err := f.db.QueryRow(
+		query,
+		StoreLogout.Username,
+	).Scan(
+		&UserLogout.Id,
+		&UserLogout.Username,
+	)
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "There was an error with Queryrow LogOut"})
+		return err
+	}
+
+	queryLogout := `UPDATE users SET veriflogin = $1 WHERE id = $2`
+
+	_, err = f.db.ExecContext(
+		ctx,
+		queryLogout,
+		"False",
+		UserLogout.Id,
+	)
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "There was an error with Query LogOut"})
+		return err
+	}
+
+	return nil
+}
 
 func (f *UsersAPI) CreateUsers(ctx *gin.Context, PostUsers *PostUsers) error {
 	query := `INSERT INTO users(email, username, name, password, role, veriflogin) VALUES ($1,$2,$3,$4,$5,$6) RETURNING id, created_at`
@@ -198,3 +235,30 @@ func (f *UsersAPI) CreateUsers(ctx *gin.Context, PostUsers *PostUsers) error {
 
 	return nil
 }
+
+// func RevokToken(ctx *gin.Context, tokenstring string) error {
+// 	var revoked bool
+
+// 	var f *sql.DB
+
+// 	query := `SELECT EXISTS(SELECT 1 FROM revok_token WHERE token = $1)`
+
+// 	err := f.QueryRowContext(
+// 		ctx,
+// 		query,
+// 		tokenstring,
+// 	)
+
+// 	if err != nil {
+// 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to check token revocation"})
+// 		return nil
+// 	}
+
+// 	if revoked {
+// 		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Token has been revoked"})
+// 		return nil
+// 	}
+
+// 	return nil
+
+// }

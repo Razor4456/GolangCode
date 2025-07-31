@@ -60,5 +60,7 @@ func VerifToken(tokenString string) (*CustomerToken, error) {
 		return claims, nil
 	}
 
+	log.Printf("Raw claims: %#v", token.Claims)
+
 	return nil, errors.New("invalid token claims")
 }

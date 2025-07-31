@@ -122,3 +122,25 @@ func (f *StuffApi) DeleteStuff(ctx *gin.Context, StuffId []int64) ([]DeletedStuf
 
 	return DeletedBarang, nil
 }
+
+func (f *StuffApi) EditStuff(ctx *gin.Context, EditPost *PostStuff) error {
+	query := `UPDATE stuff SET nama_barang = &1, jumlah_barang = $2, harga = $3 WHERE id = $4 RETURNING id`
+
+	err := f.db.QueryRowContext(
+		ctx,
+		query,
+		EditPost.Namabarang,
+		EditPost.Jumlahbarang,
+		EditPost.Harga,
+		EditPost.Id,
+	).Scan(
+		&EditPost.Id,
+	)
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": ""})
+		return nil
+	}
+
+	return nil
+}

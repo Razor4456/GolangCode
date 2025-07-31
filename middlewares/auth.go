@@ -18,6 +18,12 @@ func Authenticate(ctx *gin.Context) {
 
 	tokenstring := strings.TrimPrefix(token, "Bearer")
 
+	// err := store.RevokToken(ctx, tokenstring)
+
+	// if err != nil {
+	// 	return
+	// }
+
 	if tokenstring == token {
 		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid Token Format. Expected 'Bearer <token>'"})
 		return
