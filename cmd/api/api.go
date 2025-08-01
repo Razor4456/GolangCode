@@ -32,6 +32,7 @@ func (app *ApplicationApi) ServerRoute(route *gin.Engine) {
 		Found.GET("/GetStuff", app.GetDataStuff)
 		Found.POST("/AddStuff", app.CreateStuff)
 		Found.DELETE("/DeleteStuff", app.DeleteStuff)
+		Found.PUT("/EditStuff", app.EditStuff)
 	}
 
 	Roles := route.Group("/")

@@ -135,18 +135,18 @@ func (f *StuffApi) EditStuff(ctx *gin.Context, EditPost *PostStuff) error {
 		Query,
 		EditPost.Id,
 	).Scan(
-		CheckEdit.Id,
+		&CheckEdit.Id,
 	)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"Error": "Data not found"})
-			return nil
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "No Data Found"})
+			return err
 		}
-		return nil
+		return fmt.Errorf("Eidt:%s", err)
 	}
 
-	QueryEdit := `UPDATE stuff SET nama_barang = &1, jumlah_barang = $2, harga = $3 WHERE id = $4 RETURNING id`
+	QueryEdit := `UPDATE stuff SET nama_barang = $1, jumlah_barang = $2, harga = $3 WHERE id = $4 RETURNING id`
 
 	err = f.db.QueryRowContext(
 		ctx,
@@ -156,13 +156,13 @@ func (f *StuffApi) EditStuff(ctx *gin.Context, EditPost *PostStuff) error {
 		EditPost.Harga,
 		CheckEdit.Id,
 	).Scan(
-		&EditPost.Id,
+		&CheckEdit.Id,
 	)
 
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": ""})
-		return nil
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Edit Failed"})
+		return err
 	}
 
-	return nil
+	return err
 }
