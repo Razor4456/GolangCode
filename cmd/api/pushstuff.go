@@ -116,3 +116,57 @@ func (app *ApplicationApi) DeleteStuff(ctx *gin.Context) {
 	})
 
 }
+
+type StuffEdit struct {
+	Id           int64  `json:"id"`
+	Namabarang   string `json:"nama_barang"`
+	Jumlahbarang int64  `json:"jumlah_barang"`
+	Harga        int64  `json:"harga"`
+}
+
+func (app *ApplicationApi) EditStuff(ctx *gin.Context) {
+	var PayloadEdit StuffEdit
+
+	err := ctx.ShouldBindJSON(&PayloadEdit)
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "There was an error edit stuff"})
+		return
+	}
+
+	if PayloadEdit.Id <= 0 {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "id cannot be empty"})
+		return
+	}
+	if PayloadEdit.Namabarang == "" {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Nama barang cannot be empty"})
+		return
+	}
+	if PayloadEdit.Jumlahbarang <= 0 {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Jumlah barang must be greater then 0"})
+		return
+	}
+	if PayloadEdit.Harga <= 0 {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Harga barang must be greater then 0"})
+		return
+	}
+
+	PayEdit := &store.PostStuff{
+		Id:           PayloadEdit.Id,
+		Namabarang:   PayloadEdit.Namabarang,
+		Jumlahbarang: PayloadEdit.Jumlahbarang,
+		Harga:        PayloadEdit.Harga,
+	}
+
+	err = app.Function.Stuff.EditStuff(ctx, PayEdit)
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Payload Edit Stuff Error"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"Message":   "Successfuly edit stuff",
+		"Data Edit": PayEdit,
+	})
+}

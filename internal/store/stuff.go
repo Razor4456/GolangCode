@@ -123,16 +123,38 @@ func (f *StuffApi) DeleteStuff(ctx *gin.Context, StuffId []int64) ([]DeletedStuf
 	return DeletedBarang, nil
 }
 
-func (f *StuffApi) EditStuff(ctx *gin.Context, EditPost *PostStuff) error {
-	query := `UPDATE stuff SET nama_barang = &1, jumlah_barang = $2, harga = $3 WHERE id = $4 RETURNING id`
+type CheckEdit struct {
+	Id int64 `json:"id"`
+}
 
-	err := f.db.QueryRowContext(
+func (f *StuffApi) EditStuff(ctx *gin.Context, EditPost *PostStuff) error {
+	Query := `SELECT id FROM stuff WHERE id = $1`
+	CheckEdit := CheckEdit{}
+
+	err := f.db.QueryRow(
+		Query,
+		EditPost.Id,
+	).Scan(
+		CheckEdit.Id,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"Error": "Data not found"})
+			return nil
+		}
+		return nil
+	}
+
+	QueryEdit := `UPDATE stuff SET nama_barang = &1, jumlah_barang = $2, harga = $3 WHERE id = $4 RETURNING id`
+
+	err = f.db.QueryRowContext(
 		ctx,
-		query,
+		QueryEdit,
 		EditPost.Namabarang,
 		EditPost.Jumlahbarang,
 		EditPost.Harga,
-		EditPost.Id,
+		CheckEdit.Id,
 	).Scan(
 		&EditPost.Id,
 	)
