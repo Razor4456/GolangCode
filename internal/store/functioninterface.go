@@ -20,7 +20,6 @@ type FunctionStore struct {
 		EditStuff(*gin.Context, *PostStuff) error
 	}
 	Users interface {
-		// Login(*gin.Context) error
 		CreateUsers(*gin.Context, *PostUsers) error
 		Login(*gin.Context, *UsersLogin) (*Tokens, error)
 		Logout(*gin.Context, *StoreLogout) error
@@ -29,12 +28,17 @@ type FunctionStore struct {
 	Role interface {
 		Role(*gin.Context) ([]Role, error)
 	}
+
+	Transaction interface {
+		Cart(*gin.Context) error
+	}
 }
 
 func FunctionStorage(db *sql.DB) FunctionStore {
 	return FunctionStore{
-		Stuff: &StuffApi{db},
-		Users: &UsersAPI{db},
-		Role:  &RoleAPI{db},
+		Stuff:       &StuffApi{db},
+		Users:       &UsersAPI{db},
+		Role:        &RoleAPI{db},
+		Transaction: &TransactionAPI{db},
 	}
 }

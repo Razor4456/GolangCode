@@ -1,0 +1,75 @@
+package store
+
+import (
+	"database/sql"
+	"fmt"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+)
+
+type Transaction struct {
+	Id     int64        `json:"id"`
+	UserId int64        `json:"user_id"`
+	Barang []TransStuff `json:"stuff"`
+}
+
+type TransStuff struct {
+	IdBarang     int64  `json:"id_barang"`
+	Namabarang   string `json:"nama_barang"`
+	Jumlahbarang int64  `json:"jumlahbarang"`
+	Harga        int64  `json:"harga"`
+}
+
+type TransactionAPI struct {
+	db *sql.DB
+}
+
+func (f *TransactionAPI) Cart(ctx *gin.Context, trx *Transaction) error {
+	tx, err := f.db.BeginTx(ctx, nil)
+
+	if err != nil {
+		return err
+	}
+
+	for _, item := range trx.Barang {
+		var BarangId int64
+		var NamaBarang string
+		var StockBarang int64
+		query := `SELECT id, nama_barang, jumlahbarang FROM stuff WHERE id = $1`
+
+		tx.QueryRowContext(
+			ctx,
+			query,
+			item.IdBarang,
+		).Scan(
+			&BarangId,
+			&NamaBarang,
+			&StockBarang,
+		)
+
+		if err != nil {
+			if err == sql.ErrNoRows {
+				ctx.JSON(http.StatusInternalServerError, gin.H{"error": "No Data Found"})
+				return err
+			}
+			return fmt.Errorf("Eidt:%s", err)
+		}
+
+		if item.Jumlahbarang > StockBarang {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Stock tidak mencukupi / Stock Habis"})
+			tx.Rollback()
+			return nil
+		}
+
+		queryupdate := `UPDATE stuff SET jumlahbarang = jumlah_barang - $1 WHERE id = $2`
+
+		tx.ExecContext(
+			ctx,
+			queryupdate,
+			item.Jumlahbarang,
+			item.IdBarang,
+		)
+
+	}
+}
