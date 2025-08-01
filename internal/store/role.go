@@ -2,6 +2,7 @@ package store
 
 import (
 	"database/sql"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -20,12 +21,12 @@ func (f *RoleAPI) Role(ctx *gin.Context) ([]Role, error) {
 	query := `SELECT * FROM role`
 
 	UserRole, err := f.db.Query(query)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": "Database query failed"})
+		return nil, fmt.Errorf("database query failed: %w", err)
+	}
 
 	defer UserRole.Close()
-
-	if err != nil {
-
-	}
 
 	var DataRole []Role
 

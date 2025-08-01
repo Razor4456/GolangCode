@@ -116,10 +116,6 @@ func (f *StuffApi) DeleteStuff(ctx *gin.Context, StuffId []int64) ([]DeletedStuf
 		DeletedBarang = append(DeletedBarang, PosStuff)
 	}
 
-	if err != nil {
-		return nil, fmt.Errorf("rows error :%w", err)
-	}
-
 	return DeletedBarang, nil
 }
 
