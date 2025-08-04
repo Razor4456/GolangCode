@@ -95,6 +95,31 @@ func (app *ApplicationApi) CreateUsers(ctx *gin.Context) {
 		return
 	}
 
+	if Paypostusers.Email == "" {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Message": "Email cannot be empty"})
+		return
+	}
+
+	if Paypostusers.Username == "" {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Message": "Username cannot be empty"})
+		return
+	}
+
+	if Paypostusers.Name == "" {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Message": "Name cannot be empty"})
+		return
+	}
+
+	if Paypostusers.Password == "" {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Message": "Password cannot be empty"})
+		return
+	}
+
+	if Paypostusers.Role == "" {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Message": "Role cannot be empty"})
+		return
+	}
+
 	passhash, err := utils.HashPassword(Paypostusers.Password)
 
 	if err != nil {
