@@ -30,7 +30,7 @@ type FunctionStore struct {
 	}
 
 	Transaction interface {
-		Cart(*gin.Context) error
+		Cart(*gin.Context, *Transaction) error
 	}
 }
 

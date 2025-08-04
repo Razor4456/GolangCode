@@ -63,13 +63,38 @@ func (f *TransactionAPI) Cart(ctx *gin.Context, trx *Transaction) error {
 		}
 
 		queryupdate := `UPDATE stuff SET jumlahbarang = jumlah_barang - $1 WHERE id = $2`
-
-		tx.ExecContext(
+		_, err := tx.ExecContext(
 			ctx,
 			queryupdate,
 			item.Jumlahbarang,
 			item.IdBarang,
 		)
 
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+
+		insert := `INSERT INTO transactions (user_id, id_barang, jumlah_barang, harga) VALUES ($1, $2, $3, $4)`
+		tx.ExecContext(
+			ctx,
+			insert,
+			trx.UserId,
+			item.IdBarang,
+			item.Jumlahbarang,
+			item.Harga,
+		)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
 	}
+
+	tx.Commit()
+
+	if err != nil {
+		return err
+	}
+	// ctx.JSON(http.StatusOK, gin.H{"message": "Transaksi Berhasil"})
+	return nil
 }
