@@ -36,9 +36,10 @@ func (f *TransactionAPI) Cart(ctx *gin.Context, trx *Transaction) error {
 		var BarangId int64
 		var NamaBarang string
 		var StockBarang int64
-		query := `SELECT id, nama_barang, jumlahbarang FROM stuff WHERE id = $1`
+		var HargaBarang int64
+		query := `SELECT id, nama_barang, jumlah_barang, harga FROM stuff WHERE id = $1`
 
-		tx.QueryRowContext(
+		err := tx.QueryRowContext(
 			ctx,
 			query,
 			item.IdBarang,
@@ -46,6 +47,7 @@ func (f *TransactionAPI) Cart(ctx *gin.Context, trx *Transaction) error {
 			&BarangId,
 			&NamaBarang,
 			&StockBarang,
+			&HargaBarang,
 		)
 
 		if err != nil {
@@ -62,8 +64,8 @@ func (f *TransactionAPI) Cart(ctx *gin.Context, trx *Transaction) error {
 			return nil
 		}
 
-		queryupdate := `UPDATE stuff SET jumlahbarang = jumlah_barang - $1 WHERE id = $2`
-		_, err := tx.ExecContext(
+		queryupdate := `UPDATE stuff SET jumlah_barang = jumlah_barang - $1 WHERE id = $2`
+		_, err = tx.ExecContext(
 			ctx,
 			queryupdate,
 			item.Jumlahbarang,
@@ -75,14 +77,15 @@ func (f *TransactionAPI) Cart(ctx *gin.Context, trx *Transaction) error {
 			return err
 		}
 
-		insert := `INSERT INTO transactions (user_id, id_barang, jumlah_barang, harga) VALUES ($1, $2, $3, $4)`
-		tx.ExecContext(
+		insert := `INSERT INTO transactions (userid, idbarang, nama_barang, jumlah_barang, harga) VALUES ($1, $2, $3, $4, $5)`
+		_, err = tx.ExecContext(
 			ctx,
 			insert,
 			trx.UserId,
 			item.IdBarang,
+			NamaBarang,
 			item.Jumlahbarang,
-			item.Harga,
+			HargaBarang,
 		)
 		if err != nil {
 			tx.Rollback()
@@ -90,11 +93,11 @@ func (f *TransactionAPI) Cart(ctx *gin.Context, trx *Transaction) error {
 		}
 	}
 
-	tx.Commit()
+	err = tx.Commit()
 
 	if err != nil {
 		return err
 	}
-	// ctx.JSON(http.StatusOK, gin.H{"message": "Transaksi Berhasil"})
+	ctx.JSON(http.StatusOK, gin.H{"message": "Transaksi Berhasil"})
 	return nil
 }

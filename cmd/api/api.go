@@ -35,6 +35,12 @@ func (app *ApplicationApi) ServerRoute(route *gin.Engine) {
 		Found.PUT("/EditStuff", app.EditStuff)
 	}
 
+	Transaction := route.Group("/FoundationTransaction")
+	// Transaction.Use(middlewares.Authenticate)
+	{
+		Transaction.POST("/Cart", app.Cart)
+	}
+
 	Roles := route.Group("/")
 	{
 		Roles.GET("/GetRole", app.Role)

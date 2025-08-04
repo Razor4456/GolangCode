@@ -13,10 +13,8 @@ type TransactionPayload struct {
 }
 
 type BarangPayload struct {
-	IdBarang     int64  `json:"id_barang"`
-	Namabarang   string `json:"nama_barang"`
-	Jumlahbarang int64  `json:"jumlahbarang"`
-	Harga        int64  `json:"harga"`
+	IdBarang     int64 `json:"id_barang"`
+	Jumlahbarang int64 `json:"jumlah_barang"`
 }
 
 func (app *ApplicationApi) Cart(ctx *gin.Context) {
@@ -37,9 +35,7 @@ func (app *ApplicationApi) Cart(ctx *gin.Context) {
 
 		item := store.TransStuff{
 			IdBarang:     ProsesTrx.IdBarang,
-			Namabarang:   ProsesTrx.Namabarang,
 			Jumlahbarang: ProsesTrx.Jumlahbarang,
-			Harga:        ProsesTrx.Harga,
 		}
 
 		PayloadTransaction.Barang = append(PayloadTransaction.Barang, item)
@@ -49,6 +45,7 @@ func (app *ApplicationApi) Cart(ctx *gin.Context) {
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": "There was an error when doing transaction"})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
 		return
 	}
 
