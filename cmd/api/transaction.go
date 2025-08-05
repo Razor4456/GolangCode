@@ -51,6 +51,6 @@ func (app *ApplicationApi) Cart(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"Message":          "Transaction successfuly",
-		"Transaction Data": PayTransaction,
+		// "Transaction Data": PayTransaction,
 	})
 }

@@ -32,11 +32,14 @@ func (f *TransactionAPI) Cart(ctx *gin.Context, trx *Transaction) error {
 		return err
 	}
 
+	var TransactionDatas []TransStuff
+
 	for _, item := range trx.Barang {
 		var BarangId int64
 		var NamaBarang string
 		var StockBarang int64
 		var HargaBarang int64
+
 		query := `SELECT id, nama_barang, jumlah_barang, harga FROM stuff WHERE id = $1`
 
 		err := tx.QueryRowContext(
@@ -77,8 +80,9 @@ func (f *TransactionAPI) Cart(ctx *gin.Context, trx *Transaction) error {
 			return err
 		}
 
-		insert := `INSERT INTO transactions (userid, idbarang, nama_barang, jumlah_barang, harga) VALUES ($1, $2, $3, $4, $5)`
-		_, err = tx.ExecContext(
+		var DataTransaction TransStuff
+		insert := `INSERT INTO transactions (userid, idbarang, nama_barang, jumlah_barang, harga) VALUES ($1, $2, $3, $4, $5) RETURNING (userid, idbarang, nama_barang, jumlah_barang, harga)`
+		err = tx.QueryRowContext(
 			ctx,
 			insert,
 			trx.UserId,
@@ -86,7 +90,15 @@ func (f *TransactionAPI) Cart(ctx *gin.Context, trx *Transaction) error {
 			NamaBarang,
 			item.Jumlahbarang,
 			HargaBarang,
+		).Scan(
+			&DataTransaction.IdBarang,
+			&DataTransaction.Namabarang,
+			&DataTransaction.Jumlahbarang,
+			&DataTransaction.Harga,
 		)
+
+		TransactionDatas = append(TransactionDatas, DataTransaction)
+
 		if err != nil {
 			tx.Rollback()
 			return err
@@ -98,6 +110,9 @@ func (f *TransactionAPI) Cart(ctx *gin.Context, trx *Transaction) error {
 	if err != nil {
 		return err
 	}
-	ctx.JSON(http.StatusOK, gin.H{"message": "Transaksi Berhasil"})
+	ctx.JSON(http.StatusOK, gin.H{"message": "Transaksi Berhasil",
+		"data": TransactionDatas,
+	})
+
 	return nil
 }
