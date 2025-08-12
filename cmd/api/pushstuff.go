@@ -11,14 +11,14 @@ import (
 
 func (app *ApplicationApi) GetDataStuff(ctx *gin.Context) {
 
-	datastuffs, err := app.Function.Stuff.GetDataStuff(ctx)
+	err := app.Function.Stuff.GetDataStuff(ctx)
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "There was an error when get data"})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"Stuff": datastuffs})
+	// ctx.JSON(http.StatusOK, gin.H{"Stuff": datastuffs})
 
 }
 

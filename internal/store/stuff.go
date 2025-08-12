@@ -26,7 +26,7 @@ type StuffApi struct {
 	db *sql.DB
 }
 
-func (f *StuffApi) GetDataStuff(ctx *gin.Context) ([]PostStuff, error) {
+func (f *StuffApi) GetDataStuff(ctx *gin.Context) error {
 	query := `SELECT * FROM stuff`
 
 	stuffrows, err := f.db.Query(query)
@@ -34,7 +34,7 @@ func (f *StuffApi) GetDataStuff(ctx *gin.Context) ([]PostStuff, error) {
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"Message": "There was an error on GetDataStuff"})
 		ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
-		return nil, nil
+		return nil
 	}
 
 	defer stuffrows.Close()
@@ -54,7 +54,7 @@ func (f *StuffApi) GetDataStuff(ctx *gin.Context) ([]PostStuff, error) {
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"Error": "Ther was an error when get datastuff"})
 			ctx.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
-			return nil, nil
+			return nil
 
 		}
 		DataStuff = append(DataStuff, datastuffrows)
@@ -63,10 +63,15 @@ func (f *StuffApi) GetDataStuff(ctx *gin.Context) ([]PostStuff, error) {
 	if err = stuffrows.Err(); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"Message": "There was an error on GetDataStuff"})
 		ctx.JSON(http.StatusInternalServerError, gin.H{"Message": err.Error()})
-		return nil, nil
+		return nil
 	}
 
-	return DataStuff, nil
+	ctx.JSON(http.StatusOK, gin.H{
+		"Message": "Data",
+		"Data":    DataStuff,
+	})
+
+	return nil
 
 }
 

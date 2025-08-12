@@ -25,9 +25,11 @@ type Dbconfig struct {
 }
 
 func (app *ApplicationApi) ServerRoute(route *gin.Engine) {
+	route.Use(middlewares.CorsMiddleware())
 
 	Found := route.Group("/FoundationV1")
-	Found.Use(middlewares.Authenticate)
+	// Found.Use(middlewares.Authenticate)
+
 	{
 		Found.GET("/GetStuff", app.GetDataStuff)
 		Found.POST("/AddStuff", app.CreateStuff)
