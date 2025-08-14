@@ -67,8 +67,7 @@ func (f *StuffApi) GetDataStuff(ctx *gin.Context) error {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"Message": "Data",
-		"Data":    DataStuff,
+		"Data": DataStuff,
 	})
 
 	return nil
