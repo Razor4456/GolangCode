@@ -168,10 +168,10 @@ func (f *StuffApi) EditStuff(ctx *gin.Context, EditPost *PostStuff) error {
 }
 
 type StuffGetId struct {
-	Id           int64 `json:"id"`
-	NamaBarang   int64 `json:"nama_barang"`
-	JumlahBarang int64 `json:"jumlah_barang"`
-	Harga        int64 `json:"Harga"`
+	Id           int64  `json:"id"`
+	NamaBarang   string `json:"nama_barang"`
+	JumlahBarang int64  `json:"jumlah_barang"`
+	Harga        int64  `json:"harga"`
 }
 
 func (f *StuffApi) GetByidStuff(ctx *gin.Context, id int64) (StuffGetId, error) {
@@ -188,10 +188,10 @@ func (f *StuffApi) GetByidStuff(ctx *gin.Context, id int64) (StuffGetId, error) 
 		query,
 		id,
 	).Scan(
-		StuffId.Id,
-		StuffId.NamaBarang,
-		StuffId.JumlahBarang,
-		StuffId.Harga,
+		&StuffId.Id,
+		&StuffId.NamaBarang,
+		&StuffId.JumlahBarang,
+		&StuffId.Harga,
 	)
 
 	if err != nil {

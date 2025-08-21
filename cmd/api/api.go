@@ -35,7 +35,7 @@ func (app *ApplicationApi) ServerRoute(route *gin.Engine) {
 		Found.POST("/AddStuff", app.CreateStuff)
 		Found.DELETE("/DeleteStuff", app.DeleteStuff)
 		Found.PUT("/EditStuff/:id", app.EditStuff)
-		Found.GET("/GetStuffId/:id")
+		Found.GET("/GetStuffId/:id", app.GetByidStuff)
 	}
 
 	Transaction := route.Group("/FoundationTransaction")

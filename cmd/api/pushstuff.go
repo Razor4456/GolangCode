@@ -135,7 +135,7 @@ func (app *ApplicationApi) EditStuff(ctx *gin.Context) {
 		return
 	}
 
-	id, err := strconv.Atoi(urlid)
+	id, err := strconv.ParseInt(urlid, 10, 64)
 	if err != nil || id <= 0 {
 		ctx.JSON(http.StatusBadRequest, gin.H{"Error": "Invalid Id Format"})
 		return
@@ -148,8 +148,9 @@ func (app *ApplicationApi) EditStuff(ctx *gin.Context) {
 		return
 	}
 
-	if PayloadEdit.Id <= 0 {
+	if id <= 0 {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "id cannot be empty"})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	if PayloadEdit.Namabarang == "" {
@@ -166,7 +167,7 @@ func (app *ApplicationApi) EditStuff(ctx *gin.Context) {
 	}
 
 	PayEdit := &store.PostStuff{
-		Id:           PayloadEdit.Id,
+		Id:           id,
 		Namabarang:   PayloadEdit.Namabarang,
 		Jumlahbarang: PayloadEdit.Jumlahbarang,
 		Harga:        PayloadEdit.Harga,
@@ -186,17 +187,17 @@ func (app *ApplicationApi) EditStuff(ctx *gin.Context) {
 	})
 }
 
-type StuffGetById struct {
-	Id int64 `json:"id"`
-}
-
 func (app *ApplicationApi) GetByidStuff(ctx *gin.Context) {
-	var StuffbyId StuffGetById
+	urlid := ctx.Param("id")
 
-	err := ctx.ShouldBindJSON(StuffbyId)
+	if urlid == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"Error": "Id Cannot Be Null"})
+		return
+	}
 
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "There was an error with GetByidStuff api"})
+	id, err := strconv.ParseInt(urlid, 10, 64)
+	if err != nil || id <= 0 {
+		ctx.JSON(http.StatusBadRequest, gin.H{"Error": "Invalid Id Format"})
 		return
 	}
 
@@ -204,7 +205,7 @@ func (app *ApplicationApi) GetByidStuff(ctx *gin.Context) {
 	// 	Id: StuffbyId.Id,
 	// }
 
-	DataStuff, err := app.Function.Stuff.GetByidStuff(ctx, StuffbyId.Id)
+	DataStuff, err := app.Function.Stuff.GetByidStuff(ctx, id)
 
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"Error": "Error when sent payload"})
@@ -212,6 +213,7 @@ func (app *ApplicationApi) GetByidStuff(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
+
 		"Data": DataStuff,
 	})
 }
