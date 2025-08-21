@@ -110,6 +110,7 @@ func (f *TransactionAPI) Cart(ctx *gin.Context, trx *Transaction) error {
 	if err != nil {
 		return err
 	}
+
 	ctx.JSON(http.StatusOK, gin.H{"message": "Transaksi Berhasil",
 		"data": TransactionDatas,
 	})

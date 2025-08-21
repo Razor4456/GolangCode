@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/Razor4456/FoundationBackEnd/internal/store"
 	"github.com/gin-gonic/gin"
@@ -127,7 +128,20 @@ type StuffEdit struct {
 func (app *ApplicationApi) EditStuff(ctx *gin.Context) {
 	var PayloadEdit StuffEdit
 
-	err := ctx.ShouldBindJSON(&PayloadEdit)
+	urlid := ctx.Param("id")
+
+	if urlid == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"Error": "Id Cannot Be Null"})
+		return
+	}
+
+	id, err := strconv.Atoi(urlid)
+	if err != nil || id <= 0 {
+		ctx.JSON(http.StatusBadRequest, gin.H{"Error": "Invalid Id Format"})
+		return
+	}
+
+	err = ctx.ShouldBindJSON(&PayloadEdit)
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "There was an error edit stuff"})
@@ -169,5 +183,35 @@ func (app *ApplicationApi) EditStuff(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"Message":   "Successfuly edit stuff",
 		"Data Edit": PayEdit,
+	})
+}
+
+type StuffGetById struct {
+	Id int64 `json:"id"`
+}
+
+func (app *ApplicationApi) GetByidStuff(ctx *gin.Context) {
+	var StuffbyId StuffGetById
+
+	err := ctx.ShouldBindJSON(StuffbyId)
+
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "There was an error with GetByidStuff api"})
+		return
+	}
+
+	// payloadStuffId := StuffGetById{
+	// 	Id: StuffbyId.Id,
+	// }
+
+	DataStuff, err := app.Function.Stuff.GetByidStuff(ctx, StuffbyId.Id)
+
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"Error": "Error when sent payload"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"Data": DataStuff,
 	})
 }

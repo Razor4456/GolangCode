@@ -18,6 +18,7 @@ type FunctionStore struct {
 		DeleteStuff(*gin.Context, []int64) ([]DeletedStuff, error)
 		GetDataStuff(*gin.Context) error
 		EditStuff(*gin.Context, *PostStuff) error
+		GetByidStuff(*gin.Context, int64) (StuffGetId, error)
 	}
 	Users interface {
 		CreateUsers(*gin.Context, *PostUsers) error

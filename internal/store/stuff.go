@@ -166,3 +166,40 @@ func (f *StuffApi) EditStuff(ctx *gin.Context, EditPost *PostStuff) error {
 
 	return err
 }
+
+type StuffGetId struct {
+	Id           int64 `json:"id"`
+	NamaBarang   int64 `json:"nama_barang"`
+	JumlahBarang int64 `json:"jumlah_barang"`
+	Harga        int64 `json:"Harga"`
+}
+
+func (f *StuffApi) GetByidStuff(ctx *gin.Context, id int64) (StuffGetId, error) {
+	query := `SELECT id, nama_barang, jumlah_barang, harga FROM stuff WHERE id = $1`
+
+	if id <= 0 {
+		ctx.JSON(http.StatusBadGateway, gin.H{"error": "Id cannot less than 0"})
+		return StuffGetId{}, nil
+	}
+
+	StuffId := StuffGetId{}
+
+	err := f.db.QueryRow(
+		query,
+		id,
+	).Scan(
+		StuffId.Id,
+		StuffId.NamaBarang,
+		StuffId.JumlahBarang,
+		StuffId.Harga,
+	)
+
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "There was an error with GetById Stuff Sotre"})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return StuffGetId{}, nil
+	}
+
+	return StuffId, nil
+
+}
